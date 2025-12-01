@@ -11,21 +11,17 @@ const UserDashboard = () => {
                     <p className="text-sm text-text/70">Continue exploring research with ease</p>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
                     <section className="md:col-span-2">
-                        <h2 className="text-lg font-semibold text-text mb-3">Recent Activity</h2>
+                        
                         <RecentActivites />
                     </section>
 
                     <aside className="md:col-span-1">
-                        <h2 className="text-lg font-semibold text-text mb-3">Trending Research</h2>
-                        <TrendingResearch />
+                        <h2 className="text-lg font-semibold text-text mb-3">Stats</h2>
+                       <UserStats />
                     </aside>
 
-                    <section className="md:col-span-3">
-                        <h2 className="text-lg font-semibold text-text mb-3">Stats</h2>
-                        <UserStats />
-                    </section>
                 </div>
             </div>
         </div>

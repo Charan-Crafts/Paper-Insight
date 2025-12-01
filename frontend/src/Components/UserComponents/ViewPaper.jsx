@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Save } from 'lucide-react';
-import { savePaper } from '../../redux/slice/paperSlice';
+import { savePaper, addRecentPaper } from '../../redux/slice/paperSlice';
 import { toast } from "react-toastify"
 const ViewPaper = () => {
 
@@ -30,6 +30,13 @@ const ViewPaper = () => {
         paper.paperId === decodedId ||
         paper._id === decodedId
     );
+
+    // When a paper is successfully resolved, add it to recent papers
+    useEffect(() => {
+        if (currentPaper) {
+            dispatch(addRecentPaper(currentPaper));
+        }
+    }, [currentPaper, dispatch]);
 
     const handleSavePaper = () => {
         if (!currentPaper || isAlreadySaved) return;

@@ -2,6 +2,19 @@ import { createSlice, isRejectedWithValue } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api"
 import { act } from "react";
+// Safely read recent papers from localStorage (browser only)
+const loadRecentPapers = () => {
+    if (typeof window === "undefined") return [];
+    try {
+        const raw = window.localStorage.getItem("recentPapers");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
+
 const initialState = {
     papers: [],
     loading: false,
@@ -9,7 +22,8 @@ const initialState = {
     totalResults: 0,
     limit: 0,
     page: 1,
-    savedPapers: []
+    savedPapers: [],
+    recentPapers: loadRecentPapers()
 }
 
 export const fetchPapers = createAsyncThunk("papers/fetchPapers", async (params, { rejectWithValue }) => {
@@ -59,7 +73,44 @@ export const getSavedPapers = createAsyncThunk("papers/getSaved", async (id, { r
 const paperSlice = createSlice({
     name: "papers",
     initialState,
-    reducers: {},
+    reducers: {
+        addRecentPaper: (state, action) => {
+            const paper = action.payload;
+            if (!paper) return;
+
+            // Use a stable identifier for comparison
+            const id =
+                paper.id ||
+                paper.paperId ||
+                paper._id;
+
+            if (!id) return;
+
+            const existing = state.recentPapers || [];
+
+            // Remove any existing entry with the same id
+            const filtered = existing.filter(
+                (p) =>
+                    p.id !== id &&
+                    p.paperId !== id &&
+                    p._id !== id
+            );
+
+            // Put this paper at the front and keep only the latest 10
+            const updated = [{ ...paper }, ...filtered].slice(0, 10);
+
+            state.recentPapers = updated;
+
+            // Persist to localStorage (ignore errors)
+            try {
+                if (typeof window !== "undefined") {
+                    window.localStorage.setItem("recentPapers", JSON.stringify(updated));
+                }
+            } catch {
+                // ignore localStorage errors
+            }
+        }
+    },
     extraReducers: (builder) => {
         builder
             // Fetch the papers
@@ -114,5 +165,7 @@ const paperSlice = createSlice({
 
     }
 })
+
+export const { addRecentPaper } = paperSlice.actions;
 
 export default paperSlice.reducer;
