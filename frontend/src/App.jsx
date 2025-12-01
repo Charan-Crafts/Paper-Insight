@@ -31,7 +31,7 @@ const App = () => {
 
     dispatch(checkAuthStatus())
       .then((response) => {
-        console.log("Auth status checked:", response);
+        // console.log("Auth status checked:", response);
         if (response.payload === "Unauthorized access - No token provided") {
           toast.info("Please log in to continue.");
           navigate("/login");

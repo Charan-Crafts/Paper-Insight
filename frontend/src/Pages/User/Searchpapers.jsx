@@ -14,7 +14,7 @@ const Searchpapers = () => {
   const { papers = [], loading } = useSelector((state) => state.papers);
 
   useEffect(() => {
-    console.log("View paper:", viewPaper);
+    // console.log("View paper:", viewPaper);
   }, [viewPaper])
 
   return (

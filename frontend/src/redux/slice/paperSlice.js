@@ -42,7 +42,7 @@ export const savePaper = createAsyncThunk("papers/savePaper",async(paperData,{re
     }
 })
 
-export const getSavedPapers = createAsyncThunk("papers/getSaved",async(userId,{rejectWithValue})=>{
+export const getSavedPapers = createAsyncThunk("papers/getSaved",async(id,{rejectWithValue})=>{
 
     try {
         
@@ -95,6 +95,20 @@ const paperSlice = createSlice ({
             })
 
             // Get the saved papers
+
+            .addCase(getSavedPapers.pending,(state)=>{
+                state.loading=true;
+            })
+            .addCase(getSavedPapers.fulfilled,(state,action)=>{
+                state.loading=false;
+                // console.log("Saved papers fetched in slice:", action.payload);
+                state.savedPapers=action.payload.data;
+            
+            })
+            .addCase(getSavedPapers.rejected,(state,action)=>{
+                state.loading=false;
+                state.error=action.payload;
+            })
             
 
     }
