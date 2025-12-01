@@ -5,9 +5,9 @@ const initialState ={
     papers:[],
     loading:false,
     error:null,
-    totalPapers:0,
-    limit:30,
-    currentPage:1
+    totalResults:0,
+    limit:0,
+    page:1
 }
 
 export const fetchPapers = createAsyncThunk("papers/fetchPapers",async(params,{rejectWithValue})=>{
@@ -37,7 +37,10 @@ const paperSlice = createSlice ({
             .addCase(fetchPapers.fulfilled,(state,action)=>{
                 state.loading=false;
                 console.log("Fetched papers:", action.payload);
-                state.papers=action.payload.data;  
+                state.papers=action.payload.data;
+                state.totalResults=action.payload.totalResults;
+                state.limit=action.payload.limit;
+                state.page=action.payload.page;  
             })
             .addCase(fetchPapers.rejected,(state,action)=>{
                 state.loading=false;

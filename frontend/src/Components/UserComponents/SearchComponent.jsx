@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import {useDispatch , useSelector} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { fetchPapers } from '../../redux/slice/paperSlice';
 const SearchComponent = () => {
     const years = ["2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015"];
@@ -53,12 +53,10 @@ const SearchComponent = () => {
 
     const [sortBy, setSortBy] = useState("");
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        // Implement search logic here
-        // console.log("Searching for:", { searchQuery, researchField, paperType, publicationYear, sortBy });
 
-        const searchParams ={
+    useEffect(() => {
+
+        const searchParams = {
             searchQuery,
             researchField,
             paperType,
@@ -67,7 +65,26 @@ const SearchComponent = () => {
         }
 
         dispatch(fetchPapers(searchParams))
-            .then((response)=>{
+            .then((response) => {
+                console.log("Fetched papers:", response);
+            })
+
+    }, [sortBy, publicationYear, paperType, researchField])
+    const handleSearch = (e) => {
+        e.preventDefault();
+        // Implement search logic here
+        // console.log("Searching for:", { searchQuery, researchField, paperType, publicationYear, sortBy });
+
+        const searchParams = {
+            searchQuery,
+            researchField,
+            paperType,
+            publicationYear,
+            sortBy
+        }
+
+        dispatch(fetchPapers(searchParams))
+            .then((response) => {
                 console.log("Fetched papers:", response);
             })
     }

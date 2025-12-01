@@ -44,8 +44,16 @@ const getPapers = async (req, res) => {
         // --------------------------------------------
         // SORTING
         // --------------------------------------------
-        const sortByParam = "submittedDate";
-        const sortOrderParam = sortBy === "newest" ? "descending" : "ascending";
+        let sortByParam = "submittedDate";
+        let sortOrderParam = "descending"; // newest → old
+
+        if (sortBy === "oldest") {
+            sortOrderParam = "ascending";
+        }
+
+        if (sortBy === "relevance") {
+            sortByParam = "relevance";
+        }
 
         // --------------------------------------------
         // ARXIV API URL
@@ -65,18 +73,18 @@ const getPapers = async (req, res) => {
 
         let papers = Array.isArray(entries)
             ? entries.map((item) => ({
-                  id: item.id,
-                  title: item.title,
-                  abstract: item.summary,
-                  published: item.published,
-                  authors: Array.isArray(item.author)
-                      ? item.author.map((a) => a.name)
-                      : [item.author?.name],
-                  pdf_url: item.link?.find((l) => l.$.type === "application/pdf")?.$.href,
-                  category: Array.isArray(item.category)
-                      ? item.category.map((c) => c.$.term)
-                      : item.category?.$.term || [],
-              }))
+                id: item.id,
+                title: item.title,
+                abstract: item.summary,
+                published: item.published,
+                authors: Array.isArray(item.author)
+                    ? item.author.map((a) => a.name)
+                    : [item.author?.name],
+                pdf_url: item.link?.find((l) => l.$.type === "application/pdf")?.$.href,
+                category: Array.isArray(item.category)
+                    ? item.category.map((c) => c.$.term)
+                    : item.category?.$.term || [],
+            }))
             : [];
 
         // --------------------------------------------
@@ -150,29 +158,6 @@ const getPapers = async (req, res) => {
     }
 };
 
-
-
-
-// {
-//             "id": "http://arxiv.org/abs/2307.16348v2",
-//             "title": "Rating-based Reinforcement Learning",
-//             "abstract": "This paper develops a novel rating-based reinforcement learning approach that uses human ratings to obtain human guidance in reinforcement learning. Different from the existing preference-based and ranking-based reinforcement learning paradigms, based on human relative preferences over sample pairs, the proposed rating-based reinforcement learning approach is based on human evaluation of individual trajectories without relative comparisons between sample pairs. The rating-based reinforcement learning approach builds on a new prediction model for human ratings and a novel multi-class loss function. We conduct several experimental studies based on synthetic ratings and real human ratings to evaluate the effectiveness and benefits of the new rating-based reinforcement learning approach.",
-//             "published": "2023-07-30T23:54:22Z",
-//             "authors": [
-//                 "Devin White",
-//                 "Mingkang Wu",
-//                 "Ellen Novoseller",
-//                 "Vernon J. Lawhern",
-//                 "Nicholas Waytowich",
-//                 "Yongcan Cao"
-//             ],
-//             "pdf_url": "https://arxiv.org/pdf/2307.16348v2",
-//             "category": [
-//                 "cs.LG",
-//                 "cs.AI",
-//                 "cs.RO"
-//             ]
-//         },
 const savedPaper = async (req, res) => {
 
     const { id, title, authors, abstract, pdf_url, category, published } = req.body;
