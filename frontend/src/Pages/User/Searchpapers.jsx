@@ -1,47 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchComponent from '../../Components/UserComponents/SearchComponent';
 import PaperCard from '../../Components/UserComponents/PaperCard';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Searchpapers = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalResults = 3000;
-  const numberOfPapers = Math.ceil(totalResults / 10);
   const totalSlides = 10;
 
-  const demoPapers = [
-    { title: 'Deep Learning for Graphs', year: '2024', authors: 'A. Smith, B. Lee', abstract: 'An overview of graph neural networks and recent improvements.', tags: ['ML', 'Graphs'] },
-    { title: 'CRISPR Applications in Medicine', year: '2023', authors: 'C. Patel', abstract: 'A review of CRISPR techniques and therapeutic potential.', tags: ['Biology', 'Medicine'], badge: 'Open Access' },
-    { title: 'Quantum Error Correction', year: '2022', authors: 'D. Nguyen', abstract: 'Techniques for fault-tolerance in near-term quantum devices.', tags: ['Physics', 'Quantum'] },
-    { title: 'Economic Impacts of AI', year: '2021', authors: 'E. Gomez', abstract: 'Study on labor markets and automation effects.', tags: ['Economics'] },
-    { title: 'Advances in Battery Tech', year: '2024', authors: 'F. Wang', abstract: 'Materials and design improvements for energy density.', tags: ['Engineering', 'Energy'] },
-  ];
+  const dispatch = useDispatch();
+
+  const { papers = [], loading } = useSelector((state) => state.papers);
 
   return (
     <div className='min-h-screen bg-background/0'>
-      <div>
-        <SearchComponent />
-      </div>
+      
+      {/* SEARCH BAR */}
+      <SearchComponent />
 
       <div className='max-w-7xl mx-auto px-4 py-6'>
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {demoPapers.map((p, idx) => (
-            <PaperCard key={idx} paper={p} />
-          ))}
-        </div>
 
-        {/* Pagination  */}   
+        {/* LOADING SPINNER */}
+        {loading && (
+          <div className="flex justify-center items-center py-10">
+            <div className="space-x-3 flex text-black">
+              <span className="loading loading-ring loading-sm"></span>
+              <span className="loading loading-ring loading-md"></span>
+              <span className="loading loading-ring loading-lg"></span>
+            </div>
+          </div>
+        )}
+
+        {/* NO PAPERS */}
+        {!loading && papers.length === 0 && (
+          <div className='flex items-center justify-center min-h-[40vh]'>
+            <h2 className='text-text/60 text-lg'>No papers found. Try adjusting your search criteria.</h2>
+          </div>
+        )}
+
+        {/* PAPERS GRID */}
+        {papers.length > 0 && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {papers.map((p, idx) => (
+              <PaperCard key={idx} paper={p} />
+            ))}
+          </div>
+        )}
+
+        {/* PAGINATION */}
         <div className="join flex justify-center mt-9 gap-3">
-          {
-            [...Array(totalSlides).keys()].map((_, idx) => {
-              return <button className="join-item btn bg-black">{idx + 1}</button>
-            })
-          }
-
+          {[...Array(totalSlides).keys()].map((_, idx) => (
+            <button key={idx} className="join-item btn bg-black text-white">
+              {idx + 1}
+            </button>
+          ))}
         </div>
 
       </div>
     </div>
   );
-}
+};
 
 export default Searchpapers;

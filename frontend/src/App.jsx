@@ -5,7 +5,7 @@ import HomeLayout from './Pages/Home/HomeLayout';
 import LoginPage from './Pages/Home/LoginPage';
 import RegisterPage from './Pages/Home/RegisterPage';
 import HomePage from './Pages/Home/HomePage';
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import UserLayout from './Pages/User/UserLayout';
 import UserDashboard from './Pages/User/UserDashboard';
 import Searchpapers from './Pages/User/Searchpapers';
@@ -30,6 +30,11 @@ const App = () => {
     dispatch(checkAuthStatus())
     .then((response)=>{
       console.log("Auth status checked:", response);
+      if(response.payload ==="Unauthorized access - No token provided"){
+        toast.info("Please log in to continue.");
+        navigate("/login");
+        return;
+      }
       if(response.payload.isAuthenticated){
         if(response.payload.data.role !=="admin"){
           navigate("/paperinsight");

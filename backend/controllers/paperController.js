@@ -3,63 +3,142 @@ const xml2js = require("xml2js");
 
 const paperModel = require("../models/paperModel");
 
+
 const getPapers = async (req, res) => {
-    const query = req.query.researchField || "machine learning";
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 30;
+    const {
+        searchQuery = "",
+        researchField = "",
+        paperType = "",
+        publicationYear = "",
+        sortBy = "newest",
+        page = 1,
+        limit = 30
+    } = req.query;
 
     const start = (page - 1) * limit;
 
     try {
-        const url = `${process.env.ARXIV_API_URL}?search_query=all:${encodeURIComponent(query)}&start=${start}&max_results=${limit}`;
+        // --------------------------------------------
+        // BUILD SEARCH QUERY
+        // --------------------------------------------
+
+        let queryParts = [];
+
+        // If user provided a searchQuery
+        if (searchQuery.trim() !== "") {
+            queryParts.push(`all:${searchQuery}`);
+        }
+
+        // If searchQuery is empty → use researchField
+        if (searchQuery.trim() === "" && researchField.trim() !== "") {
+            queryParts.push(`all:${researchField}`);
+        }
+
+        // If both empty → default to machine learning
+        if (queryParts.length === 0) {
+            queryParts.push(`all:machine learning`);
+        }
+
+        const finalQuery = queryParts.join("+AND+");
+
+        // --------------------------------------------
+        // SORTING
+        // --------------------------------------------
+        const sortByParam = "submittedDate";
+        const sortOrderParam = sortBy === "newest" ? "descending" : "ascending";
+
+        // --------------------------------------------
+        // ARXIV API URL
+        // --------------------------------------------
+        const url = `${process.env.ARXIV_API_URL}?search_query=${finalQuery}&start=${start}&max_results=${limit}&sortBy=${sortByParam}&sortOrder=${sortOrderParam}`;
 
         const response = await axios.get(url);
 
-        // XML Parser
+        // --------------------------------------------
+        // PARSE XML
+        // --------------------------------------------
         const parser = new xml2js.Parser({ explicitArray: false });
         const result = await parser.parseStringPromise(response.data);
 
-        console.log(typeof(result));
-
-        const totalResults = result.feed["opensearch:totalResults"];
-
-        
-
-        //  Extract total results from arXiv
-        
-
+        const totalResults = parseInt(result.feed["opensearch:totalResults"]);
         const entries = result.feed.entry || [];
 
-        const papers = Array.isArray(entries)
+        let papers = Array.isArray(entries)
             ? entries.map((item) => ({
-                id: item.id,
-                title: item.title,
-                abstract: item.summary,
-                published: item.published,
-                authors: Array.isArray(item.author)
-                    ? item.author.map((a) => a.name)
-                    : [item.author?.name],
-
-                pdf_url:
-                    item.link &&
-                    item.link.find((l) => l.$.type === "application/pdf")?.$.href,
-
-                category:
-                    item.category?.map
-                        ? item.category.map((c) => c.$.term)
-                        : item.category?.$.term || [],
-            }))
+                  id: item.id,
+                  title: item.title,
+                  abstract: item.summary,
+                  published: item.published,
+                  authors: Array.isArray(item.author)
+                      ? item.author.map((a) => a.name)
+                      : [item.author?.name],
+                  pdf_url: item.link?.find((l) => l.$.type === "application/pdf")?.$.href,
+                  category: Array.isArray(item.category)
+                      ? item.category.map((c) => c.$.term)
+                      : item.category?.$.term || [],
+              }))
             : [];
 
+        // --------------------------------------------
+        // MANUAL YEAR FILTER
+        // --------------------------------------------
+        if (publicationYear) {
+            papers = papers.filter((p) =>
+                p.published.startsWith(publicationYear)
+            );
+        }
 
+        // --------------------------------------------
+        // MANUAL PAPER TYPE FILTER
+        // --------------------------------------------
+        if (paperType) {
+            const type = paperType.toLowerCase();
+
+            papers = papers.filter((paper) => {
+                const title = paper.title.toLowerCase();
+                const abstract = paper.abstract?.toLowerCase() || "";
+
+                switch (type) {
+                    case "research paper":
+                        return true; // everything on arXiv is research
+
+                    case "survey":
+                    case "review":
+                        return (
+                            title.includes("survey") ||
+                            title.includes("review") ||
+                            abstract.includes("survey") ||
+                            abstract.includes("review")
+                        );
+
+                    case "thesis":
+                        return (
+                            title.includes("thesis") ||
+                            abstract.includes("thesis")
+                        );
+
+                    case "conference":
+                        return (
+                            title.includes("conference") ||
+                            abstract.includes("conference")
+                        );
+
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // --------------------------------------------
+        // SEND RESPONSE
+        // --------------------------------------------
         return res.status(200).json({
             success: true,
             message: "Papers fetched successfully",
             page,
             limit,
-            totalResults: parseInt(totalResults),
+            totalResults,
             data: papers,
-            
         });
 
     } catch (error) {
@@ -70,6 +149,8 @@ const getPapers = async (req, res) => {
         });
     }
 };
+
+
 
 
 // {
