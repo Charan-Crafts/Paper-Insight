@@ -42,12 +42,27 @@ export const savePaper = createAsyncThunk("papers/savePaper",async(paperData,{re
     }
 })
 
+export const getSavedPapers = createAsyncThunk("papers/getSaved",async(userId,{rejectWithValue})=>{
+
+    try {
+        
+        const response = await api.get(`/papers/savedpapersByUserId/${id}`,{withCredentials:true})
+
+        return response.data;
+    } catch (error) {
+        console.log(error.response.data.message);
+        let message = error.response.data.message;
+        return rejectWithValue(message)
+    }
+})
+
 const paperSlice = createSlice ({
     name:"papers",
     initialState,
     reducers:{},
     extraReducers:(builder)=>{
         builder 
+            // Fetch the papers
             .addCase(fetchPapers.pending,(state)=>{
                 state.loading=true;
             })
@@ -64,6 +79,7 @@ const paperSlice = createSlice ({
                 state.error=action.payload;
             })
 
+            // Save the papers
             .addCase(savePaper.pending,(state)=>{
                 state.loading=true;
                 
@@ -77,6 +93,10 @@ const paperSlice = createSlice ({
                 state.loading = false;
                 state.error = action.payload;
             })
+
+            // Get the saved papers
+            
+
     }
 })
 

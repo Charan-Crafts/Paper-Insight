@@ -1,7 +1,16 @@
 import React from 'react';
 import PaperCard from '../../Components/UserComponents/PaperCard';
-
+import {useSelector } from "react-redux"
+import {useEffect} from "react"
 const SavedPapers = () => {
+
+  const {savedPapers} = useSelector((state)=>state.papers)
+
+  console.log(savedPapers)
+
+  useEffect(()=>{
+
+  },[savedPapers])
   const demoPapers = [
     { title: 'Deep Learning for Graphs', year: '2024', authors: 'A. Smith, B. Lee', abstract: 'An overview of graph neural networks and recent improvements.', tags: ['ML', 'Graphs'] },
     { title: 'CRISPR Applications in Medicine', year: '2023', authors: 'C. Patel', abstract: 'A review of CRISPR techniques and therapeutic potential.', tags: ['Biology', 'Medicine'], badge: 'Open Access' },
@@ -26,7 +35,7 @@ const SavedPapers = () => {
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {demoPapers.map((p, idx) => (
+          {savedPapers.map((p, idx) => (
             <PaperCard key={idx} paper={p} />
           ))}
         </div>
