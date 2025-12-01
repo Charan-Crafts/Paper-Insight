@@ -14,11 +14,11 @@ import { Download } from 'lucide-react';
 
 const PaperCard = ({ paper = {} }) => {
 
-    console.log("Paper in PaperCard:", paper);
+    console.log("Paper in PaperCard:", paper.authors);
     const p = {
         title: paper.title,
         year: new Date(paper.published).getFullYear(),
-        authors: paper.authors,
+        authors: paper.authors.slice(1,10),
         abstract: paper.abstract,
         downloadLink: paper.pdf_url,
         tags: paper.category ? [paper.category] : [],
@@ -35,6 +35,7 @@ const PaperCard = ({ paper = {} }) => {
                     </div>
 
                     <div className="mt-2 text-sm text-text/70">
+                    
                         <span className="mr-3">{p.authors}</span>
                         <span className="inline-block">• {p.year}</span>
                     </div>
