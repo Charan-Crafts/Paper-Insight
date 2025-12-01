@@ -51,7 +51,8 @@ const SearchComponent = () => {
 
     const [publicationYear, setPublicationYear] = useState("");
 
-    const [sortBy, setSortBy] = useState("");
+    // Default sort ensures we always send a meaningful value to the API
+    const [sortBy, setSortBy] = useState("relevance");
 
 
     useEffect(() => {
@@ -69,7 +70,7 @@ const SearchComponent = () => {
                 // console.log("Fetched papers:", response);
             })
 
-    }, [sortBy, publicationYear, paperType, researchField])
+    }, [searchQuery, sortBy, publicationYear, paperType, researchField])
     const handleSearch = (e) => {
         e.preventDefault();
         // Implement search logic here

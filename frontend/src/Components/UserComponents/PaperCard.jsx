@@ -25,10 +25,17 @@ const PaperCard = ({ paper = {}, setViewPaper }) => {
 
     };
 
-    const handleViewPaper = (paperId) => {
+    const handleViewPaper = () => {
         if (setViewPaper) {
             setViewPaper(true);
         }
+
+        // Prefer the external paper ID if present, fall back to other common keys
+        const paperId =
+            paper.id ||
+            paper.paperId ||
+            paper._id;
+
         if (paperId) {
             const encodedId = encodeURIComponent(paperId);
             navigate(`/paperinsight/${encodedId}`);
@@ -76,7 +83,7 @@ const PaperCard = ({ paper = {}, setViewPaper }) => {
                     </a> */}
                     <button
                         className="bg-text text-background px-3 py-1 rounded-md text-sm font-medium cursor-pointer"
-                        onClick={() => handleViewPaper(paper.id)}
+                        onClick={handleViewPaper}
                     >
                         View
                     </button>
