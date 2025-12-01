@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Save } from 'lucide-react';
-import { savePaper, addRecentPaper } from '../../redux/slice/paperSlice';
+import { savePaper, removeSavedPaper, addRecentPaper } from '../../redux/slice/paperSlice';
 import { toast } from "react-toastify"
 const ViewPaper = () => {
 
@@ -24,12 +24,15 @@ const ViewPaper = () => {
                 paper._id === decodedId
         );
 
-    // Check if this paper is already in savedPapers (by multiple possible id fields)
-    const isAlreadySaved = !!currentPaper && (savedPapers || []).some((paper) =>
+    // Find matching saved entry, if it exists
+    const matchedSavedPaper = !!currentPaper && (savedPapers || []).find((paper) =>
         paper.id === decodedId ||
         paper.paperId === decodedId ||
         paper._id === decodedId
     );
+
+    // Check if this paper is already in savedPapers
+    const isAlreadySaved = !!matchedSavedPaper;
 
     // When a paper is successfully resolved, add it to recent papers
     useEffect(() => {
@@ -38,9 +41,21 @@ const ViewPaper = () => {
         }
     }, [currentPaper, dispatch]);
 
-    const handleSavePaper = () => {
-        if (!currentPaper || isAlreadySaved) return;
+    const handleToggleSave = () => {
+        if (!currentPaper) return;
 
+        // If already saved → remove it
+        if (isAlreadySaved && matchedSavedPaper?._id) {
+            dispatch(removeSavedPaper(matchedSavedPaper._id))
+                .then((res) => {
+                    if (res.payload?.success) {
+                        toast.success(res.payload.message || "Paper removed from saved");
+                    }
+                });
+            return;
+        }
+
+        // Otherwise save it
         dispatch(savePaper(currentPaper))
             .then((res) => {
                 if (res.payload?.success) {
@@ -74,12 +89,11 @@ const ViewPaper = () => {
                 <div className="flex items-center gap-2 border-b flex-row w-1/12 border-text/5 pb-2">
                     <a href={currentPaper.pdf_url} download={currentPaper.title} className="bg-text text-background px-3 py-1 rounded-md text-sm font-medium cursor-pointer">Download</a>
                     <button
-                        className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${isAlreadySaved ? 'bg-gray-400 text-background cursor-default' : 'bg-text text-background'
+                        className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${isAlreadySaved ? 'bg-red-500 text-background' : 'bg-text text-background'
                             }`}
-                        onClick={isAlreadySaved ? undefined : handleSavePaper}
-                        disabled={isAlreadySaved}
+                        onClick={handleToggleSave}
                     >
-                        {isAlreadySaved ? 'Saved' : 'Save'}
+                        {isAlreadySaved ? 'Unsave' : 'Save'}
                     </button>
 
                 </div>

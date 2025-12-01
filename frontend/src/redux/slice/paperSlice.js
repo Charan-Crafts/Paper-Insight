@@ -70,6 +70,23 @@ export const getSavedPapers = createAsyncThunk("papers/getSaved", async (id, { r
     }
 })
 
+export const removeSavedPaper = createAsyncThunk("papers/removeSaved", async (paperId, { rejectWithValue }) => {
+
+    try {
+
+        const response = await api.delete("/papers/remove", {
+            data: { paperId },
+            withCredentials: true
+        });
+
+        return response.data;
+    } catch (error) {
+        console.log(error.response.data.message);
+        let message = error.response.data.message || error.message;
+        return rejectWithValue(message)
+    }
+})
+
 const paperSlice = createSlice({
     name: "papers",
     initialState,
@@ -158,6 +175,23 @@ const paperSlice = createSlice({
 
             })
             .addCase(getSavedPapers.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+
+            // Remove saved paper
+            .addCase(removeSavedPaper.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(removeSavedPaper.fulfilled, (state, action) => {
+                state.loading = false;
+                const deleted = action.payload?.data;
+                if (!deleted?._id) return;
+                state.savedPapers = (state.savedPapers || []).filter(
+                    (p) => p._id !== deleted._id
+                );
+            })
+            .addCase(removeSavedPaper.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
