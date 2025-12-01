@@ -2,7 +2,12 @@ import React from 'react';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from 'react-router-dom';
+import { userRegistration } from '../../redux/slice/authSlice';
 const RegisterPage = () => {
+
+  const navigate = useNavigate();
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -17,18 +22,33 @@ const RegisterPage = () => {
     country: ""
   })
 
+  const dispatch = useDispatch();
+
   const handleRegistration = (e) => {
     //  alert("Registration submitted!");
     e.preventDefault();
-    console.log("Register Data:", registerData);
-    if(registerData.password !== confirmPassword){
+
+    if (registerData.password !== confirmPassword) {
       toast.error("Passwords do not match!");
       return;
     }
-    if(!terms){
+    if (!terms) {
       toast.error("You must agree to the terms of service!");
       return;
     }
+
+    dispatch(userRegistration(registerData))
+      .then((response)=>{
+        console.log("Registration response:", response);
+        if(response.payload?.success){
+          toast.success("Registration successful! Redirecting to dashboard...");
+          navigate("/paperinsight");
+        }else{
+          toast.error(response.payload || "Registration failed. Please try again.");
+        }
+      })
+
+
   }
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
@@ -92,10 +112,13 @@ const RegisterPage = () => {
             <label className="block text-sm font-medium text-black mb-2">Role</label>
             <select className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text focus:outline-none focus:ring-2 
             focus:ring-text/10" value={registerData.role} onChange={(e) => setRegisterData({ ...registerData, role: e.target.value })}>
-              <option>Researcher</option>
-              <option>Student</option>
-              <option>Instructor</option>
-              <option>Other</option>
+              <option value="" disabled>
+                — Select your role —
+              </option>
+              <option value="researcher">Researcher</option>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+              <option value="other">Other</option>
             </select>
           </div>
 

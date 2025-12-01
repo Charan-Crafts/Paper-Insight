@@ -3,13 +3,33 @@ import { Link } from 'react-router-dom';
 
 import { User, Settings, LogOut, Search } from "lucide-react";
 
+import {useDispatch , useSelector} from "react-redux"
+
+import { userLogout } from '../../redux/slice/authSlice';
+import { toast } from 'react-toastify';
 const UserNavbar = () => {
+
+    const dispatch = useDispatch();
 
     const profileItems = [
         { name: 'Profile', to: '/profile', Icon: User },
         { name: 'Settings', to: '/settings', Icon: Settings },
         { name: 'Logout', to: '/logout', Icon: LogOut }
     ];
+
+    const handle = (name)=>{
+        
+        if(name === "Logout"){
+
+            dispatch(userLogout())
+                .then((response)=>{
+                    console.log(response)
+                    if(response.payload.success){
+                        toast.success("Logged out successfully!");
+                    }
+                })
+        }
+    }
 
     return (
         <nav className="w-full bg-background/95 shadow-sm mb-3">
@@ -51,7 +71,7 @@ const UserNavbar = () => {
                             <ul tabIndex={0} className="menu menu-compact dropdown-content bg-background rounded-box w-56 p-2 shadow">
                                 {profileItems.map((item, idx) => (
                                     <li key={idx}>
-                                        <Link to={item.to} className="flex items-center gap-3 px-2 py-2 hover:bg-text/5 rounded">
+                                        <Link to={item.to} className="flex items-center gap-3 px-2 py-2 hover:bg-text/5 rounded" onClick ={()=>handle(item.name)}>
                                             <item.Icon size={18} color="black" />
                                             <span className="text-text">{item.name}</span>
                                         </Link>

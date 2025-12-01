@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from "react-redux"
+import { userLogin } from '../../redux/slice/authSlice';
 const LoginPage = () => {
 
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const [loginData, setLoginData] = useState({
     email: "",
@@ -24,6 +29,8 @@ const LoginPage = () => {
       return;
     }
 
+
+
   }
 
 
@@ -31,7 +38,22 @@ const LoginPage = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Login Data:", loginData);
+    dispatch(userLogin(loginData))
+      .then((response) => {
+        console.log("Loginresponse:", response);
+        if(response.payload?.success){
+          setLoginData({});
+          toast.success("Login successful! Redirecting to dashboard...");
+          console.log(response.payload.data.user.role)
+          if(response.payload.data.user.role ==="admin"){
+            navigate("/admin");
+            return;
+          }else{
+            navigate("/paperinsight");
+            return
+          }
+        }
+      })
   }
 
 
@@ -86,7 +108,7 @@ const LoginPage = () => {
 
             {/* Forgot password Modal (DaisyUI/dialog) */}
             <dialog id="forgot_password_modal" className="modal">
-              <form method="dialog" className="modal-box bg-background/95 backdrop-blur-sm p-6 relative">
+              <div method="dialog" className="modal-box bg-background/95 backdrop-blur-sm p-6 relative">
                 <button
                   type="button"
                   className="absolute right-3 top-3 text-text/60 hover:text-text"
@@ -139,10 +161,10 @@ const LoginPage = () => {
                     </button>
                   </div>
                 </div>
-              </form>
-              <form method="dialog" className="modal-backdrop">
+              </div>
+              <div method="dialog" className="modal-backdrop">
                 <button>close</button>
-              </form>
+              </div>
             </dialog>
 
           </div>

@@ -6,19 +6,27 @@ const paperModel = require("../models/paperModel");
 const getPapers = async (req, res) => {
     const query = req.query.researchField || "machine learning";
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 30;
 
     const start = (page - 1) * limit;
-
-    console.log("Research Field:", query, "Page:", page);
 
     try {
         const url = `${process.env.ARXIV_API_URL}?search_query=all:${encodeURIComponent(query)}&start=${start}&max_results=${limit}`;
 
         const response = await axios.get(url);
 
+        // XML Parser
         const parser = new xml2js.Parser({ explicitArray: false });
         const result = await parser.parseStringPromise(response.data);
+
+        console.log(typeof(result));
+
+        const totalResults = result.feed["opensearch:totalResults"];
+
+        
+
+        //  Extract total results from arXiv
+        
 
         const entries = result.feed.entry || [];
 
@@ -43,12 +51,15 @@ const getPapers = async (req, res) => {
             }))
             : [];
 
+
         return res.status(200).json({
             success: true,
             message: "Papers fetched successfully",
             page,
             limit,
+            totalResults: parseInt(totalResults),
             data: papers,
+            
         });
 
     } catch (error) {
@@ -59,6 +70,7 @@ const getPapers = async (req, res) => {
         });
     }
 };
+
 
 // {
 //             "id": "http://arxiv.org/abs/2307.16348v2",
@@ -115,19 +127,19 @@ const savedPaper = async (req, res) => {
     }
 }
 
-const removeSavedPaper = async(req,res)=>{
-    const {paperId} = req.body;
+const removeSavedPaper = async (req, res) => {
+    const { paperId } = req.body;
 
     const userId = req.user.userId;
 
     try {
-        const deletedPaper = await paperModel.findOneAndDelete({_id:paperId,userId});
+        const deletedPaper = await paperModel.findOneAndDelete({ _id: paperId, userId });
 
         return res.status(200).json({
             success: true,
             message: "Paper removed successfully",
             data: deletedPaper
-        }); 
+        });
     } catch (error) {
 
         console.error(error);
@@ -135,27 +147,27 @@ const removeSavedPaper = async(req,res)=>{
             success: false,
             message: "Failed to remove paper",
         });
-        
+
     }
 }
 
-const viewPaper = async(req,res)=>{
+const viewPaper = async (req, res) => {
 
-    const {paperId} = req.params;
+    const { paperId } = req.params;
 
     const userId = req.user.userId;
 
-   
+
     try {
 
-        const paper = await paperModel.findOne({_id:paperId,userId});
+        const paper = await paperModel.findOne({ _id: paperId, userId });
 
         return res.status(200).json({
             success: true,
             message: "Paper fetched successfully",
             data: paper
         });
-        
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -164,4 +176,4 @@ const viewPaper = async(req,res)=>{
         });
     }
 }
-module.exports = { getPapers ,savedPaper, removeSavedPaper,viewPaper}; 
+module.exports = { getPapers, savedPaper, removeSavedPaper, viewPaper }; 

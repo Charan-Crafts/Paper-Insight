@@ -16,4 +16,6 @@ router.post("/update-password",authMiddleware.userAuthentication,userController.
 
 router.get("/profile",authMiddleware.userAuthentication,userController.userDetails);
 
+router.get("/status",authMiddleware.userAuthentication,userController.authStatus);
+
 module.exports = router;

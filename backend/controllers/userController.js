@@ -169,8 +169,8 @@ const userLogin = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "User logged in successfully",
-            data:{
-                user:response,
+            data: {
+                user: response,
                 accessToken
             }
         })
@@ -192,10 +192,10 @@ const userLogout = async (req, res) => {
 
         const userId = req.user.userId;
 
-        if(!userId){
+        if (!userId) {
             return res.status(400).json({
-                success:false,
-                message:"Invalid user"
+                success: false,
+                message: "Invalid user"
             })
         }
 
@@ -210,27 +210,27 @@ const userLogout = async (req, res) => {
         res.clearCookie("refreshToken");
         res.clearCookie("accessToken");
         return res.status(200).json({
-            success:true,
-            message:"User logged out successfully"
+            success: true,
+            message: "User logged out successfully"
         })
 
 
-        
+
     } catch (error) {
         console.log("Error in user logout", error);
 
         return res.status(500).json({
-            success:false,
-            message:"Internal server error"
+            success: false,
+            message: "Internal server error"
         })
     }
 }
 
 
 
-const updatePassword = async(req,res)=>{
+const updatePassword = async (req, res) => {
 
-    const {password}= req.body;
+    const { password } = req.body;
 
     const userId = req.user.userId;
 
@@ -245,24 +245,24 @@ const updatePassword = async(req,res)=>{
         await user.save();
 
         return res.status(200).json({
-            success:true,
-            message:"Password updated successfully"
+            success: true,
+            message: "Password updated successfully"
         })
-        
+
     } catch (error) {
 
         console.error("Error updating password:", error.message);
 
         return res.status(500).json({
-            success:false,
-            message:"Internal Server Error"
+            success: false,
+            message: "Internal Server Error"
         })
-        
+
     }
 }
 
 
-const userDetails = async(req,res)=>{
+const userDetails = async (req, res) => {
     const userId = req.user.userId;
 
     try {
@@ -270,18 +270,40 @@ const userDetails = async(req,res)=>{
         const response = await userModel.findById(userId).select("-password -refreshToken -__v -createdAt -updatedAt");
 
         return res.status(200).json({
-            success:true,
-            message:"User details fetched successfully",
-            data:response
+            success: true,
+            message: "User details fetched successfully",
+            data: response
         })
-        
+
     } catch (error) {
         console.log("Error in fetching user details", error);
 
         return res.status(500).json({
-            success:false,
-            message:"Internal server error"
+            success: false,
+            message: "Internal server error"
         })
     }
 }
-module.exports = { userRegistration ,userLogin ,userLogout ,updatePassword ,userDetails};
+
+const authStatus = async (req, res) => {
+
+    const user = req.user;
+
+    if (!user) {
+        return res.status(200).json({
+            success: true,
+            isAuthenticated: false,
+            message: "User is not authenticated"
+        })
+    }
+
+    return res.status(200).json({
+        success: true,
+        isAuthenticated: true,
+        message: "User is authenticated ",
+        data: user
+    })
+}
+
+
+module.exports = { userRegistration, userLogin, userLogout, updatePassword, userDetails, authStatus };

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SearchComponent from '../../Components/UserComponents/SearchComponent';
 import PaperCard from '../../Components/UserComponents/PaperCard';
 
 const Searchpapers = () => {
-  // sample demo data to show layout responsiveness
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalResults = 3000;
+  const numberOfPapers = Math.ceil(totalResults / 10);
+  const totalSlides = 10;
+
   const demoPapers = [
     { title: 'Deep Learning for Graphs', year: '2024', authors: 'A. Smith, B. Lee', abstract: 'An overview of graph neural networks and recent improvements.', tags: ['ML', 'Graphs'] },
     { title: 'CRISPR Applications in Medicine', year: '2023', authors: 'C. Patel', abstract: 'A review of CRISPR techniques and therapeutic potential.', tags: ['Biology', 'Medicine'], badge: 'Open Access' },
@@ -24,6 +28,17 @@ const Searchpapers = () => {
             <PaperCard key={idx} paper={p} />
           ))}
         </div>
+
+        {/* Pagination  */}   
+        <div className="join flex justify-center mt-9 gap-3">
+          {
+            [...Array(totalSlides).keys()].map((_, idx) => {
+              return <button className="join-item btn bg-black">{idx + 1}</button>
+            })
+          }
+
+        </div>
+
       </div>
     </div>
   );
