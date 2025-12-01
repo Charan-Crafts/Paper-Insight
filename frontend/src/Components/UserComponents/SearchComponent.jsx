@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from "react-redux"
 import { fetchPapers } from '../../redux/slice/paperSlice';
-const SearchComponent = () => {
+const SearchComponent = ({ page = 1, onResetPage }) => {
     const years = ["2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015"];
 
     const paperTypes = ["Research Paper", "Review Paper", "Case Study", "Short Communication", "Technical Report", "White Paper"];
@@ -45,7 +45,8 @@ const SearchComponent = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const [researchField, setResearchField] = useState("");
+    // Default to "Machine Learning" so the current field is visible instead of "All fields"
+    const [researchField, setResearchField] = useState("Machine Learning");
 
     const [paperType, setPaperType] = useState("");
 
@@ -62,7 +63,8 @@ const SearchComponent = () => {
             researchField,
             paperType,
             publicationYear,
-            sortBy
+            sortBy,
+            page
         }
 
         dispatch(fetchPapers(searchParams))
@@ -70,7 +72,7 @@ const SearchComponent = () => {
                 // console.log("Fetched papers:", response);
             })
 
-    }, [searchQuery, sortBy, publicationYear, paperType, researchField])
+    }, [searchQuery, sortBy, publicationYear, paperType, researchField, page, dispatch])
     const handleSearch = (e) => {
         e.preventDefault();
         // Implement search logic here
@@ -81,7 +83,8 @@ const SearchComponent = () => {
             researchField,
             paperType,
             publicationYear,
-            sortBy
+            sortBy,
+            page
         }
 
         dispatch(fetchPapers(searchParams))
@@ -103,10 +106,16 @@ const SearchComponent = () => {
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-text/80 mb-2">Search query</label>
                             <div className="flex gap-3">
-                                <input type="text" placeholder="Search by title, author, DOI..." className="flex-1 rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text placeholder:text-text/60 focus:outline-none focus:ring-2 focus:ring-text/10"
-
+                                <input
+                                    type="text"
+                                    placeholder="Search by title, author, DOI..."
+                                    className="flex-1 rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text placeholder:text-text/60 focus:outline-none focus:ring-2 focus:ring-text/10"
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)} />
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        if (onResetPage) onResetPage();
+                                    }}
+                                />
 
                                 <button className="bg-text text-background px-5 py-3 rounded-lg font-semibold"
                                     onClick={handleSearch}>Search</button>
@@ -115,7 +124,14 @@ const SearchComponent = () => {
                             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm text-text/80 mb-2">Research Field</label>
-                                    <select className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text" value={researchField} onChange={(e) => setResearchField(e.target.value)}>
+                                    <select
+                                        className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text"
+                                        value={researchField}
+                                        onChange={(e) => {
+                                            setResearchField(e.target.value);
+                                            if (onResetPage) onResetPage();
+                                        }}
+                                    >
                                         <option value="">All fields</option>
                                         {researchFields.map((field, idx) => (
                                             <option key={idx} value={field}>{field}</option>
@@ -125,7 +141,14 @@ const SearchComponent = () => {
 
                                 <div>
                                     <label className="block text-sm text-text/80 mb-2">Paper type</label>
-                                    <select className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text" value={paperType} onChange={(e) => setPaperType(e.target.value)}>
+                                    <select
+                                        className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text"
+                                        value={paperType}
+                                        onChange={(e) => {
+                                            setPaperType(e.target.value);
+                                            if (onResetPage) onResetPage();
+                                        }}
+                                    >
                                         <option value="">All types</option>
                                         {paperTypes.map((type, idx) => (
                                             <option key={idx} value={type}>{type}</option>
@@ -142,7 +165,14 @@ const SearchComponent = () => {
 
                                 <div className="mb-4">
                                     <label className="block text-sm text-text/80 mb-2">Publication year</label>
-                                    <select className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text" value={publicationYear} onChange={(e) => setPublicationYear(e.target.value)}>
+                                    <select
+                                        className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text"
+                                        value={publicationYear}
+                                        onChange={(e) => {
+                                            setPublicationYear(e.target.value);
+                                            if (onResetPage) onResetPage();
+                                        }}
+                                    >
                                         <option value="">Any year</option>
                                         {years.map((year, idx) => (
                                             <option key={idx} value={year}>{year}</option>
@@ -154,7 +184,14 @@ const SearchComponent = () => {
 
                                 <div>
                                     <label className="block text-sm text-text/80 mb-2">Sort by</label>
-                                    <select className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                                    <select
+                                        className="w-full rounded-lg border border-text/10 bg-transparent px-4 py-3 text-text"
+                                        value={sortBy}
+                                        onChange={(e) => {
+                                            setSortBy(e.target.value);
+                                            if (onResetPage) onResetPage();
+                                        }}
+                                    >
                                         <option value="relevance">Relevance</option>
                                         <option value="newest">Newest</option>
                                         <option value="citations">Most cited</option>
