@@ -1,13 +1,15 @@
 import {createSlice, isRejectedWithValue} from "@reduxjs/toolkit";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import api from "../api"
+import { act } from "react";
 const initialState ={
     papers:[],
     loading:false,
     error:null,
     totalResults:0,
     limit:0,
-    page:1
+    page:1,
+    savedPapers:[]
 }
 
 export const fetchPapers = createAsyncThunk("papers/fetchPapers",async(params,{rejectWithValue})=>{
@@ -25,6 +27,21 @@ export const fetchPapers = createAsyncThunk("papers/fetchPapers",async(params,{r
     }
 })
 
+export const savePaper = createAsyncThunk("papers/savePaper",async(paperData,{rejectWithValue})=>{
+
+    try {
+
+        const response = await api.post("/papers/save",paperData,{withCredentials:true});
+        
+        return response.data;
+        
+    } catch (error) {
+        console.log(error.response.data.message);
+        let message = error.response.data.message || error.message;
+        return rejectWithValue(message);
+    }
+})
+
 const paperSlice = createSlice ({
     name:"papers",
     initialState,
@@ -36,7 +53,7 @@ const paperSlice = createSlice ({
             })
             .addCase(fetchPapers.fulfilled,(state,action)=>{
                 state.loading=false;
-                console.log("Fetched papers:", action.payload);
+                // console.log("Fetched papers:", action.payload);
                 state.papers=action.payload.data;
                 state.totalResults=action.payload.totalResults;
                 state.limit=action.payload.limit;
@@ -45,6 +62,20 @@ const paperSlice = createSlice ({
             .addCase(fetchPapers.rejected,(state,action)=>{
                 state.loading=false;
                 state.error=action.payload;
+            })
+
+            .addCase(savePaper.pending,(state)=>{
+                state.loading=true;
+                
+            })
+            .addCase(savePaper.fulfilled,(state,action)=>{
+                state.loading = false;
+                console.log(action.payload)
+                state.savedPapers = state.savedPapers.push(action.payload.data)
+            })
+            .addCase(savePaper.rejected,(state,action)=>{   
+                state.loading = false;
+                state.error = action.payload;
             })
     }
 })

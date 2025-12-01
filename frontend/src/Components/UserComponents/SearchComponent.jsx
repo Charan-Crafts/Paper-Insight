@@ -66,7 +66,7 @@ const SearchComponent = () => {
 
         dispatch(fetchPapers(searchParams))
             .then((response) => {
-                console.log("Fetched papers:", response);
+                // console.log("Fetched papers:", response);
             })
 
     }, [sortBy, publicationYear, paperType, researchField])

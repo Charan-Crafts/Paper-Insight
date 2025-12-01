@@ -5,7 +5,8 @@ const initialState ={
     user:null,
     isAuthenticated:false,
     error:null,
-    loading:false
+    // Start in loading state until initial auth check completes
+    loading:true
 }
 
 

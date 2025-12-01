@@ -1,6 +1,7 @@
 const express = require('express');
+const mongoose = require("mongoose")
 
-const { getPapers,savedPaper ,removeSavedPaper,viewPaper} = require('../controllers/paperController');
+const { getPapers,savedPaper ,removeSavedPaper ,getSavedPaperByUserId} = require('../controllers/paperController');
 
 const router = express.Router();
 
@@ -12,6 +13,8 @@ router.post("/save",authMiddleware.userAuthentication,savedPaper);
 
 router.delete("/remove",authMiddleware.userAuthentication,removeSavedPaper);
 
-router.get("/:paperId",authMiddleware.userAuthentication,viewPaper);
+// router.get("/:paperId",authMiddleware.userAuthentication,viewPaper);
+
+router.get("/savedpapersByUserId/:id",authMiddleware.userAuthentication,getSavedPaperByUserId)
 
 module.exports = router;

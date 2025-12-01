@@ -1,8 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-const ProtectedRoutes = ({ isAuthenticated, user, children }) => {
+
+const ProtectedRoutes = ({ isAuthenticated, user, loading, children }) => {
 
     const location = useLocation();
+
+    // While auth status is loading, don't redirect yet
+    if (loading) {
+        return null;
+    }
+
     if (!isAuthenticated && (location.pathname.includes("/admin") || location.pathname.includes("/paperinsight"))) {
         return <Navigate to="/" replace={true} />;
     }
@@ -11,7 +18,7 @@ const ProtectedRoutes = ({ isAuthenticated, user, children }) => {
 
         if ((location.pathname.includes("/paperinsight")) || (location.pathname === "/login") || (location.pathname === "/register"))
             return <Navigate to="/admin" replace={true} />;
-
+        
     }
     if (isAuthenticated && user ?. role !== "admin") {
         // Can access the user routes but not the admin routes and also when dont access the login page and register page

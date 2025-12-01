@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 // {
 //     "id": "http://arxiv.org/abs/cs/9301113v1",
 //     "title": "Textbook examples of recursion",
@@ -12,18 +13,29 @@ import { Download } from 'lucide-react';
 //     "category": "cs.CC"
 // }
 
-const PaperCard = ({ paper = {} }) => {
-
-    console.log("Paper in PaperCard:", paper.authors);
+const PaperCard = ({ paper = {}, setViewPaper }) => {
+    const navigate = useNavigate();
     const p = {
         title: paper.title,
         year: new Date(paper.published).getFullYear(),
-        authors: paper.authors.slice(1,10),
+        authors: paper.authors.slice(1, 10),
         abstract: paper.abstract,
         downloadLink: paper.pdf_url,
         tags: paper.category ? [paper.category] : [],
 
     };
+
+    const handleViewPaper = (paperId) => {
+        if (setViewPaper) {
+            setViewPaper(true);
+        }
+        if (paperId) {
+            const encodedId = encodeURIComponent(paperId);
+            navigate(`/paperinsight/${encodedId}`);
+        }
+    };
+
+
 
     return (
         <article className="w-full bg-background/5 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-150" key={paper.id}>
@@ -35,12 +47,12 @@ const PaperCard = ({ paper = {} }) => {
                     </div>
 
                     <div className="mt-2 text-sm text-text/70">
-                    
+
                         <span className="mr-3">{p.authors}</span>
                         <span className="inline-block">• {p.year}</span>
                     </div>
 
-                    <p className="mt-3 text-sm text-text/70 max-h-16 overflow-hidden">{p.abstract.substring(0,100)}...</p>
+                    <p className="mt-3 text-sm text-text/70 max-h-16 overflow-hidden">{p.abstract.substring(0, 100)}...</p>
 
                     {p.tags.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -52,17 +64,22 @@ const PaperCard = ({ paper = {} }) => {
                 </div>
 
                 <div className="flex-none ml-2 flex flex-col items-end gap-2">
-                    <a
+                    {/* <a
                         href={p.downloadLink}
                         download={p.title || "paper.pdf"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-3 py-1 bg-black text-white rounded-lg hover:bg-primary/20 transition font-medium text-sm"
                     >
-                        <Download size={18}/>
-                        
-                    </a>
-                    <button className="bg-text text-background px-3 py-1 rounded-md text-sm font-medium">View</button>
+                        <Download size={18} />
+
+                    </a> */}
+                    <button
+                        className="bg-text text-background px-3 py-1 rounded-md text-sm font-medium cursor-pointer"
+                        onClick={() => handleViewPaper(paper.id)}
+                    >
+                        View
+                    </button>
                 </div>
             </div>
         </article>

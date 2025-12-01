@@ -11,7 +11,7 @@ const SidebarDrawer = () => {
         { name: 'Search Papers', Icon: FileSearchCorner, path: 'papers' },
         { name: 'My Collections', Icon: BookMarked, path: 'savedpapers' },
         { name: 'Research Chat', Icon: MessageSquare, path: 'researchchat' },
-        { name: "View Paper", Icon: BookMarked, path: `${paperId}` }
+        
     ];
 
 

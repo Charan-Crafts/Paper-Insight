@@ -2,7 +2,7 @@ const axios = require("axios");
 const xml2js = require("xml2js");
 
 const paperModel = require("../models/paperModel");
-
+const mongoose = require("mongoose")
 
 const getPapers = async (req, res) => {
     const {
@@ -242,4 +242,37 @@ const viewPaper = async (req, res) => {
         });
     }
 }
-module.exports = { getPapers, savedPaper, removeSavedPaper, viewPaper }; 
+
+const getSavedPaperByUserId = async(req,res)=>{
+
+    const {id}  = req.params;
+
+    try {
+
+        const result = await paperModel.find({userId:id}).select("-userId")
+
+        if(!result){
+            return res.status(404).json({
+                success:true,
+                message:"No papers founded",
+                data:[]
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"Fetched",
+            data:result
+        })
+
+        
+    } catch (error) {
+        console.log("Error while getting the papers from of user ",error);
+        return res.status(500).json({
+            message:false,
+            success:false,
+            error:error
+        })
+    }
+}
+module.exports = { getPapers, savedPaper, removeSavedPaper , getSavedPaperByUserId }; 

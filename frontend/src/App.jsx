@@ -13,43 +13,54 @@ import SavedPapers from './Pages/User/SavedPapers';
 import ResearchChatPage from './Pages/User/ResearchChatPage';
 import ProtectedRoutes from './ProtectedRoutes';
 import { checkAuthStatus } from './redux/slice/authSlice';
-import {useDispatch , useSelector} from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AdminLayout from './Pages/Admin/AdminLayout';
 import ViewPaper from './Components/UserComponents/ViewPaper';
 const App = () => {
 
   const dispatch = useDispatch();
-  
+
   const navigate = useNavigate();
-  const {isAuthenticated , user} = useSelector((state) => state.auth);
+  const location = useLocation();
+  const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
     dispatch(checkAuthStatus())
-    .then((response)=>{
-      console.log("Auth status checked:", response);
-      if(response.payload ==="Unauthorized access - No token provided"){
-        toast.info("Please log in to continue.");
-        navigate("/login");
-        return;
-      }
-      if(response.payload.isAuthenticated){
-        if(response.payload.data.role !=="admin"){
-          navigate("/paperinsight");
-          return;
-        }else{
-          navigate("/admin");
+      .then((response) => {
+        console.log("Auth status checked:", response);
+        if (response.payload === "Unauthorized access - No token provided") {
+          toast.info("Please log in to continue.");
+          navigate("/login");
           return;
         }
-      }
-    })
+        if (response.payload.isAuthenticated) {
+          const path = location.pathname;
+          const isOnAuthOrHome =
+            path === "/" || path === "/login" || path === "/register";
 
-    
-  },[dispatch])
-  
+          if (response.payload.data.role !== "admin") {
+            // Only redirect to base user dashboard from home/auth pages
+            if (isOnAuthOrHome) {
+              navigate("/paperinsight", { replace: true });
+            }
+            return;
+          } else {
+            // Only redirect to admin dashboard from home/auth pages
+            if (isOnAuthOrHome) {
+              navigate("/admin", { replace: true });
+            }
+            return;
+          }
+        }
+      })
+
+
+  }, [dispatch, navigate, location.pathname])
+
   return (
     <div className='min-h-screen bg-background p-2'>
       <ToastContainer theme='dark' autoClose={1000} />
@@ -64,9 +75,9 @@ const App = () => {
 
         {/* PROTECTED USER DASHBOARD — NO TRAILING SLASH! */}
         <Route
-          path="/paperinsight"    
+          path="/paperinsight"
           element={
-            <ProtectedRoutes isAuthenticated={isAuthenticated} user={user}>
+            <ProtectedRoutes isAuthenticated={isAuthenticated} user={user} loading={loading}>
               <UserLayout />
             </ProtectedRoutes>
           }
@@ -82,8 +93,8 @@ const App = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoutes isAuthenticated={isAuthenticated} user={user}>
-              <AdminLayout/>
+            <ProtectedRoutes isAuthenticated={isAuthenticated} user={user} loading={loading}>
+              <AdminLayout />
             </ProtectedRoutes>
           }
         />

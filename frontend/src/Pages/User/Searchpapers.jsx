@@ -9,11 +9,17 @@ const Searchpapers = () => {
 
   const dispatch = useDispatch();
 
+  const [viewPaper, setViewPaper] = useState(false);
+
   const { papers = [], loading } = useSelector((state) => state.papers);
+
+  useEffect(() => {
+    console.log("View paper:", viewPaper);
+  }, [viewPaper])
 
   return (
     <div className='min-h-screen bg-background/0'>
-      
+
       {/* SEARCH BAR */}
       <SearchComponent />
 
@@ -41,7 +47,7 @@ const Searchpapers = () => {
         {papers.length > 0 && (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
             {papers.map((p, idx) => (
-              <PaperCard key={idx} paper={p} />
+              <PaperCard key={idx} paper={p} setViewPaper={setViewPaper} />
             ))}
           </div>
         )}
