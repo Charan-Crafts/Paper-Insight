@@ -17,6 +17,7 @@ import {useDispatch , useSelector} from 'react-redux'
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from './Pages/Admin/AdminLayout';
+import ViewPaper from './Components/UserComponents/ViewPaper';
 const App = () => {
 
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="papers" element={<Searchpapers />} />
           <Route path="savedpapers" element={<SavedPapers />} />
           <Route path="researchchat" element={<ResearchChatPage />} />
+          <Route path=":paperId" element={<ViewPaper />} />
         </Route>
 
         {/* Admin route */}
