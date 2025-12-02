@@ -9,7 +9,7 @@ const app = express();
 const cors = require("cors");
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"http://localhost:5173" || "https://paper-insight-git-main-charans-projects-77f5c839.vercel.app",
     credentials:true,
 }))
 app.use(express.json());
