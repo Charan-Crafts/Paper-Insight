@@ -14,7 +14,7 @@ const UserNavbar = () => {
     const profileItems = [
         { name: 'Profile', to: '/profile', Icon: User },
         { name: 'Settings', to: '/settings', Icon: Settings },
-        { name: 'Logout', to: '/logout', Icon: LogOut }
+        { name: 'Logout', to: '/', Icon: LogOut }
     ];
 
     const handle = (name)=>{

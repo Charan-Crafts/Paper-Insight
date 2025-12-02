@@ -52,6 +52,9 @@ const LoginPage = () => {
             navigate("/paperinsight");
             return
           }
+        }else{
+          
+          toast.error(response.payload || "Login failed. Please try again.");
         }
       })
   }

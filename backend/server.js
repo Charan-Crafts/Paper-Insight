@@ -27,6 +27,9 @@ const port =5000
 
 const authRoutes = require("./routes/authRoutes");
 const paperRoutes = require("./routes/paperRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+
+app.use("/api/v1/chat",chatRoutes);
 
 app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/papers",paperRoutes);

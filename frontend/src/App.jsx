@@ -32,16 +32,22 @@ const App = () => {
     dispatch(checkAuthStatus())
       .then((response) => {
         // console.log("Auth status checked:", response);
+        const path = location.pathname;
+        const isOnAuthOrHome =
+          path === "/" || path === "/login" || path === "/register";
+        const isProtectedPath =
+          path.startsWith("/paperinsight") || path.startsWith("/admin");
+
+        // If no token, only force-login when user is on a protected route
         if (response.payload === "Unauthorized access - No token provided") {
-          toast.info("Please log in to continue.");
-          navigate("/login");
+          if (isProtectedPath) {
+            toast.info("Please log in to continue.");
+            navigate("/login", { replace: true });
+          }
           return;
         }
-        if (response.payload.isAuthenticated) {
-          const path = location.pathname;
-          const isOnAuthOrHome =
-            path === "/" || path === "/login" || path === "/register";
 
+        if (response.payload.isAuthenticated) {
           if (response.payload.data.role !== "admin") {
             // Only redirect to base user dashboard from home/auth pages
             if (isOnAuthOrHome) {
